@@ -1,5 +1,3 @@
-{% set mpi = mpi %}
-{% set openmp = openmp %}
 {% set enable_mpi = "ON" if mpi != "nompi" else "OFF" %}
 {% set enable_openmp = "ON" if openmp == "on" else "OFF" %}
 
@@ -12,11 +10,11 @@ source:
 
 build:
   number: 0
-  string: mpi_{{ mpi }}_openmp_{{ openmp }}
+  string: mpi_{{ mpi }}_openmp_{{ openmp }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
   skip: true  # [win]
   script_env:
-    - MPI_VARIANT={{ mpi }}
-    - OPENMP_VARIANT={{ openmp }}
+    - HYPRE_ENABLE_MPI={{ enable_mpi }}
+    - HYPRE_ENABLE_OPENMP={{ enable_openmp }}
 
 requirements:
   build:
@@ -25,16 +23,12 @@ requirements:
     - cmake
     - make
   host:
-    - libstdcxx-ng  # [linux]
-    - libcxx  # [osx]
     {% if mpi == "openmpi" %}
     - openmpi
     {% elif mpi == "mpich" %}
     - mpich
     {% endif %}
   run:
-    - libstdcxx-ng  # [linux]
-    - libcxx  # [osx]
     {% if mpi == "openmpi" %}
     - {{ pin_compatible("openmpi", max_pin="x.x") }}
     {% elif mpi == "mpich" %}
@@ -51,5 +45,5 @@ about:
 test:
   commands:
     - test -f "${PREFIX}/include/HYPRE.h"
-    - if [ "${target_platform}" = "linux-64" ]; then test -f "${PREFIX}/lib/libHYPRE.so"; fi
-    - if [[ "${target_platform}" == osx-* ]]; then test -f "${PREFIX}/lib/libHYPRE.dylib"; fi
+    - test -f "${PREFIX}/lib/libHYPRE.so"  # [linux]
+    - test -f "${PREFIX}/lib/libHYPRE.dylib"  # [osx]
