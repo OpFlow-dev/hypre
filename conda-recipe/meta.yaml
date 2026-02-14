@@ -1,0 +1,55 @@
+{% set enable_mpi = "ON" if mpi != "nompi" else "OFF" %}
+{% set enable_openmp = "ON" if openmp == "on" else "OFF" %}
+
+package:
+  name: hypre
+  version: 3.1.0
+
+source:
+  path: ..
+
+build:
+  number: 0
+  string: mpi_{{ mpi }}_openmp_{{ openmp }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
+  skip: true  # [win]
+  script_env:
+    - HYPRE_ENABLE_MPI={{ enable_mpi }}
+    - HYPRE_ENABLE_OPENMP={{ enable_openmp }}
+
+requirements:
+  build:
+    - {{ compiler("c") }}
+    - {{ compiler("cxx") }}
+    - cmake
+    - make
+  host:
+    {% if mpi == "openmpi" %}
+    - openmpi
+    {% elif mpi == "mpich" %}
+    - mpich
+    {% endif %}
+    {% if openmp == "on" %}
+    - llvm-openmp  # [osx]
+    {% endif %}
+  run:
+    {% if mpi == "openmpi" %}
+    - {{ pin_compatible("openmpi", max_pin="x.x") }}
+    {% elif mpi == "mpich" %}
+    - {{ pin_compatible("mpich", max_pin="x.x") }}
+    {% endif %}
+    {% if openmp == "on" %}
+    - llvm-openmp  # [osx]
+    {% endif %}
+
+about:
+  home: https://github.com/hypre-space/hypre
+  license: Apache-2.0
+  license_file: LICENSE-APACHE
+  summary: >
+    HYPRE sparse linear solver library with configurable MPI and OpenMP builds.
+
+test:
+  commands:
+    - test -f "${PREFIX}/include/HYPRE.h"
+    - test -f "${PREFIX}/lib/libHYPRE.so"  # [linux]
+    - test -f "${PREFIX}/lib/libHYPRE.dylib"  # [osx]
