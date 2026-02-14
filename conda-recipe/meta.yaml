@@ -28,11 +28,17 @@ requirements:
     {% elif mpi == "mpich" %}
     - mpich
     {% endif %}
+    {% if openmp == "on" %}
+    - llvm-openmp  # [osx]
+    {% endif %}
   run:
     {% if mpi == "openmpi" %}
     - {{ pin_compatible("openmpi", max_pin="x.x") }}
     {% elif mpi == "mpich" %}
     - {{ pin_compatible("mpich", max_pin="x.x") }}
+    {% endif %}
+    {% if openmp == "on" %}
+    - llvm-openmp  # [osx]
     {% endif %}
 
 about:
