@@ -106,11 +106,17 @@ jobs:
           echo "Uploading packages:"
           printf '%s\n' "${pkg_files}"
 
+          token_file="$(mktemp)"
+          chmod 600 "${token_file}"
+          printf '%s' "${ANACONDA_API_TOKEN}" > "${token_file}"
+
           while IFS= read -r pkg; do
             [ -n "${pkg}" ] || continue
-            anaconda -t "${ANACONDA_API_TOKEN}" upload \
+            anaconda -t "${token_file}" upload \
               --user opflow-dev \
               --label main \
               --skip-existing \
               "${pkg}"
           done <<< "${pkg_files}"
+
+          rm -f "${token_file}"
