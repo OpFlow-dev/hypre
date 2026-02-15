@@ -1,9 +1,10 @@
 {% set enable_mpi = "ON" if mpi != "nompi" else "OFF" %}
 {% set enable_openmp = "ON" if openmp == "on" else "OFF" %}
+{% set package_version = environ.get("HYPRE_VERSION", "3.1.0") %}
 
 package:
   name: hypre
-  version: 3.1.0
+  version: {{ package_version }}
 
 source:
   path: ..
