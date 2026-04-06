@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - ".github/workflows/ci.yml"
+      - "conda-recipe/**"
+      - "README.md"
+      - ".gitignore"
+  pull_request:
+    branches: ["**"]
+    types: [opened, reopened, synchronize]
+    paths:
+      - ".github/workflows/ci.yml"
+      - "conda-recipe/**"
+      - "README.md"
+      - ".gitignore"
+  workflow_dispatch:
+
+jobs:
+  render-recipe:
+    name: Render Recipe
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packaging repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: conda-build-env
+          auto-update-conda: false
+          channels: conda-forge
+          channel-priority: strict
+          python-version: "3.12"
+
+      - name: Install conda-build
+        shell: bash -el {0}
+        run: |
+          conda install -n conda-build-env -y conda-build
+
+      - name: Render representative variant
+        shell: bash -el {0}
+        run: |
+          set -euo pipefail
+          conda render conda-recipe \
+            --no-source \
+            --channel conda-forge \
+            --override-channels \
+            --variants '{"mpi":["nompi"],"openmp":["off"]}'

@@ -1,0 +1,8 @@
+mpi:
+  - nompi
+  - openmpi
+  - mpich
+
+openmp:
+  - on
+  - off

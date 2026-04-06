@@ -1,0 +1,57 @@
+name: Conda Package Build
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - ".github/workflows/conda-package.yml"
+      - "conda-recipe/**"
+      - "src/**"
+  pull_request:
+    branches: ["**"]
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+    paths:
+      - ".github/workflows/conda-package.yml"
+      - "conda-recipe/**"
+      - "src/**"
+  workflow_dispatch:
+
+jobs:
+  build-conda-package:
+    name: Build (${{ matrix.os }} | mpi=${{ matrix.mpi }}, openmp=${{ matrix.openmp }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        mpi: [nompi, openmpi, mpich]
+        openmp: [on, off]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: conda-build-env
+          auto-update-conda: true
+          channels: conda-forge
+          channel-priority: strict
+          python-version: "3.12"
+
+      - name: Install conda-build
+        shell: bash -el {0}
+        run: |
+          conda install -n conda-build-env -y conda-build
+
+      - name: Build package variant
+        shell: bash -el {0}
+        env:
+          CONDA_BLD_PATH: ${{ runner.temp }}/conda-bld
+        run: |
+          echo "Building variant: mpi=${{ matrix.mpi }}, openmp=${{ matrix.openmp }}"
+          variant_json="{\"mpi\":\"${{ matrix.mpi }}\",\"openmp\":\"${{ matrix.openmp }}\"}"
+          conda build conda-recipe \
+            --channel conda-forge \
+            --override-channels \
+            --variants "${variant_json}"

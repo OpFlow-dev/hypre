@@ -1,0 +1,6 @@
+.codex
+.codex/
+.DS_Store
+*.conda
+*.tar.bz2
+conda-bld/
