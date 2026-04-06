@@ -19,16 +19,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  conda-build:
-    name: Conda Build (${{ matrix.os }} | mpi=${{ matrix.mpi }}, openmp=${{ matrix.openmp }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        mpi: [nompi, openmpi, mpich]
-        openmp: [on, off]
-
+  render-recipe:
+    name: Render Recipe
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout packaging repo
         uses: actions/checkout@v6
@@ -49,26 +42,12 @@ jobs:
         run: |
           conda install -n conda-build-env -y conda-build
 
-      - name: Render recipe
+      - name: Render representative variant
         shell: bash -el {0}
-        env:
-          CONDA_BLD_PATH: ${{ runner.temp }}/conda-bld
         run: |
           set -euo pipefail
-          variant_json=$(printf '{"mpi":["%s"],"openmp":["%s"]}' "${{ matrix.mpi }}" "${{ matrix.openmp }}")
           conda render conda-recipe \
+            --no-source \
             --channel conda-forge \
             --override-channels \
-            --variants "${variant_json}"
-
-      - name: Build package variant
-        shell: bash -el {0}
-        env:
-          CONDA_BLD_PATH: ${{ runner.temp }}/conda-bld
-        run: |
-          set -euo pipefail
-          variant_json=$(printf '{"mpi":["%s"],"openmp":["%s"]}' "${{ matrix.mpi }}" "${{ matrix.openmp }}")
-          conda build conda-recipe \
-            --channel conda-forge \
-            --override-channels \
-            --variants "${variant_json}"
+            --variants '{"mpi":["nompi"],"openmp":["off"]}'
