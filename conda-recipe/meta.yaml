@@ -1,18 +1,16 @@
-# Copyright (c) 1998 Lawrence Livermore National Security, LLC and other
-# HYPRE Project Developers. See the top-level COPYRIGHT file for details.
-#
-# SPDX-License-Identifier: (Apache-2.0 OR MIT)
-
 {% set enable_mpi = "ON" if mpi != "nompi" else "OFF" %}
 {% set enable_openmp = "ON" if openmp == "on" else "OFF" %}
 {% set package_version = (environ.get("HYPRE_VERSION") or "3.1.0").lstrip("v") %}
+{% set upstream_git_url = environ.get("HYPRE_GIT_URL") or "https://github.com/hypre-space/hypre.git" %}
+{% set upstream_git_rev = environ.get("HYPRE_GIT_REV") or "9dc9e18aed6a945a95f966e57daacfb1c269f6ec" %}
 
 package:
   name: hypre
   version: {{ package_version }}
 
 source:
-  path: ..
+  git_url: {{ upstream_git_url }}
+  git_rev: {{ upstream_git_rev }}
 
 build:
   number: 0
@@ -52,7 +50,7 @@ about:
   license: Apache-2.0
   license_file: LICENSE-APACHE
   summary: >
-    HYPRE sparse linear solver library with configurable MPI and OpenMP builds.
+    HYPRE sparse linear solver library built from a pinned upstream git revision.
 
 test:
   commands:

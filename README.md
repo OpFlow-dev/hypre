@@ -1,40 +1,34 @@
-<!--
-Copyright (c) 1998 Lawrence Livermore National Security, LLC and other
-HYPRE Project Developers. See the top-level COPYRIGHT file for details.
+# HYPRE Conda Packaging Repo
 
-SPDX-License-Identifier: (Apache-2.0 OR MIT)
--->
+This repository only contains the files needed to build HYPRE conda packages
+and validate the recipe in GitHub Actions.
 
-![](src/docs/hypre-wwords.png)
+## Upstream source pin
 
+The default recipe builds from the upstream HYPRE repository:
 
-[HYPRE](http://www.llnl.gov/casc/hypre/) is a library of high performance
-preconditioners and solvers featuring multigrid methods for the solution of
-large, sparse linear systems of equations on massively parallel computers.
+- URL: `https://github.com/hypre-space/hypre.git`
+- Git revision: `9dc9e18aed6a945a95f966e57daacfb1c269f6ec`
+- Upstream tag: `v3.1.0`
 
-For documentation, see our [readthedocs page](https://hypre.readthedocs.io/en/latest/).
+The source pin lives in [conda-recipe/meta.yaml](conda-recipe/meta.yaml). CI
+checks the recipe by running `conda render` and `conda build` across the MPI
+and OpenMP variant matrix.
 
-For information on code development, build requirements, publications, and more,
-see our [Wiki page](https://github.com/hypre-space/hypre/wiki).
+## Local build
 
-To install HYPRE, please see either the documentation or the file [INSTALL.md](./INSTALL.md).
+```bash
+conda build conda-recipe \
+  --channel conda-forge \
+  --override-channels
+```
 
-An overview of the HYPRE release history can be found in the file [CHANGELOG](./CHANGELOG).
+To test a different upstream snapshot without editing the recipe, override the
+pin with environment variables:
 
-Support information can be found in the file [SUPPORT.md](./SUPPORT.md).
-
-
-License
-----------------
-
-HYPRE is distributed under the terms of both the MIT license and the Apache
-License (Version 2.0). Users may choose either license, at their option.
-
-All new contributions must be made under both the MIT and Apache-2.0 licenses.
-
-See [LICENSE-MIT](./LICENSE-MIT), [LICENSE-APACHE](./LICENSE-APACHE),
-[COPYRIGHT](./COPYRIGHT), and [NOTICE](./NOTICE) for details.
-
-SPDX-License-Identifier: (Apache-2.0 OR MIT)
-
-LLNL-CODE-778117
+```bash
+HYPRE_VERSION=3.1.0 \
+HYPRE_GIT_URL=https://github.com/hypre-space/hypre.git \
+HYPRE_GIT_REV=9dc9e18aed6a945a95f966e57daacfb1c269f6ec \
+conda build conda-recipe --channel conda-forge --override-channels
+```
