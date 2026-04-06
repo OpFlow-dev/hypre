@@ -1,6 +1,8 @@
 {% set enable_mpi = "ON" if mpi != "nompi" else "OFF" %}
 {% set enable_openmp = "ON" if openmp == "on" else "OFF" %}
 {% set package_version = (environ.get("HYPRE_VERSION") or "3.1.0").lstrip("v") %}
+{% set mpich_version = "4.3.2" %}
+{% set openmpi_version = "5.0.8" %}
 
 package:
   name: hypre
@@ -11,7 +13,7 @@ source:
   git_rev: v3.1.0
 
 build:
-  number: 0
+  number: 1
   string: mpi_{{ mpi }}_openmp_{{ openmp }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
   skip: true  # [win]
   script_env:
@@ -26,9 +28,9 @@ requirements:
     - make
   host:
     {% if mpi == "openmpi" %}
-    - openmpi
+    - openmpi {{ openmpi_version }}
     {% elif mpi == "mpich" %}
-    - mpich
+    - mpich {{ mpich_version }}
     {% endif %}
     {% if openmp == "on" %}
     - llvm-openmp  # [osx]
