@@ -1,16 +1,14 @@
 {% set enable_mpi = "ON" if mpi != "nompi" else "OFF" %}
 {% set enable_openmp = "ON" if openmp == "on" else "OFF" %}
 {% set package_version = (environ.get("HYPRE_VERSION") or "3.1.0").lstrip("v") %}
-{% set upstream_git_url = environ.get("HYPRE_GIT_URL") or "https://github.com/hypre-space/hypre.git" %}
-{% set upstream_git_rev = environ.get("HYPRE_GIT_REV") or "9dc9e18aed6a945a95f966e57daacfb1c269f6ec" %}
 
 package:
   name: hypre
   version: {{ package_version }}
 
 source:
-  git_url: {{ upstream_git_url }}
-  git_rev: {{ upstream_git_rev }}
+  git_url: https://github.com/hypre-space/hypre.git
+  git_rev: v3.1.0
 
 build:
   number: 0
@@ -50,7 +48,7 @@ about:
   license: Apache-2.0
   license_file: LICENSE-APACHE
   summary: >
-    HYPRE sparse linear solver library built from a pinned upstream git revision.
+    HYPRE sparse linear solver library with configurable MPI and OpenMP builds.
 
 test:
   commands:
